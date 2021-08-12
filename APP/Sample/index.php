@@ -1,19 +1,24 @@
-<?php
+<?php 
 // params 
-$db_servername = "172.99.0.10";
-$db_username = "test";
-$db_password = "1234"; 
+$env = getenv('env');
+$env_title = $env == 'prod' ? '' : ($env == 'dev' ? 
+		'<span class=\'badge alert-info\'>Development</span>' : 
+		'<span class=\'badge alert-warning text-dark\'>Stage</span>');
+$db_servername = getenv('db_servername');
+$db_schema = getenv('db_schema');
+$db_username = getenv('db_username');
+$db_password = getenv('db_password');
 $db_conn_ok = false;
 $db_create_ok = false;
 $db_table_ok = false;
 $db_data_ok = false;
 $db_get_ok = false;
-$redis_servername = "172.99.0.11";
+$redis_servername = getenv('redis_servername');
 $redis_conn_ok = false;
 $redis_write_ok = false;
 $redis_read_ok = false;
-$ok = "<span style='color: green;'>OK</span>";
-$ng = "<span style='color: red;'>Error</span>"; 
+$ok = "<span class='text-success'>OK</span>";
+$ng = "<span class='text-danger'>Error</span>"; 
 // Database init 
 // Connection
 $conn = mysqli_connect($db_servername, $db_username, $db_password);
@@ -22,7 +27,7 @@ $db_conn_ok = !$conn->connect_error;
 // Create mock data 
 if ($db_conn_ok) {
 	// schema 
-	$db_selected = mysqli_select_db($conn, 'sample');
+	$db_selected = mysqli_select_db($conn, $db_schema);
 	if ($db_selected) { 
 		// drop if exists
 		$cmd = 'drop DATABASE sample;';	
@@ -32,7 +37,7 @@ if ($db_conn_ok) {
 	// 
 	$cmd = 'CREATE DATABASE sample';	
 	  if (mysqli_query($conn, $cmd)) { 
-		$db_selected = mysqli_select_db($conn, 'sample');
+		$db_selected = mysqli_select_db($conn, $db_schema);
 		$db_create_ok = true;
 		// table 
 		$cmd = "CREATE TABLE user (
@@ -73,28 +78,53 @@ try {
 ?>
 <html>
 	<head>
-        <title>Docker Dev. Env. Sample - DACC</title> 
+        <title><?=getenv('site_title')?></title> 
         <meta charset="utf-8">
         <meta name="author" content="Nando Chen">
         <!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'><![endif]-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+		<!-- Bootstraps -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	</head>
 	<body>
-		<h1>Hello world.</h1>
-		<hr />
-		<h2>Database</h2>
-		<ul>
-			<li>Connection: <?=$db_conn_ok ? $ok : $ng ?></li>
-			<li>Create schema: <?=$db_create_ok ? $ok : $ng ?></li>
-			<li>Create table: <?=$db_table_ok ? $ok : $ng ?></li>
-			<li>Create data: <?=$db_data_ok ? $ok : $ng ?></li>
-			<li>Read data: <?=$db_get_ok ? $ok : $ng ?></li>
-		</ul>
-		<h2>Redis</h2>
-		<ul>
-			<li>Connection: <?=$redis_conn_ok ? $ok : $ng ?></li>
-			<li>Write: <?=$redis_write_ok ? $ok : $ng ?></li>
-			<li>Read: <?=$redis_read_ok ? $ok : $ng ?></li>
-		</ul>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12 col-sm-12">
+				<h1>Hello world.<?=$env_title?></h1>
+				<p class="lead"><?=getenv('site_title')?></p>
+			</div>
+		</div><!-- /header info -->
+		<div class="row">
+			<div class="col-md-6 col-sm-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">Database</div>
+					<div class="panel-body">
+						<ul class="list-group">
+							<li class="list-group-item">Connection: <?=$db_conn_ok ? $ok : $ng ?></li>
+							<li class="list-group-item">Create schema: <?=$db_create_ok ? $ok : $ng ?></li>
+							<li class="list-group-item">Create table: <?=$db_table_ok ? $ok : $ng ?></li>
+							<li class="list-group-item">Create data: <?=$db_data_ok ? $ok : $ng ?></li>
+							<li class="list-group-item">Read data: <?=$db_get_ok ? $ok : $ng ?></li>
+						</ul>
+					</div>
+				</div>
+			</div><!-- /db -->
+			<div class="col-md-6 col-sm-12">
+				<div class="panel panel-default">
+					<div class="panel-heading">Redis</div>
+					<div class="panel-body">
+						<ul class="list-group">
+							<li class="list-group-item">Connection: <?=$redis_conn_ok ? $ok : $ng ?></li>
+							<li class="list-group-item">Write: <?=$redis_write_ok ? $ok : $ng ?></li>
+							<li class="list-group-item">Read: <?=$redis_read_ok ? $ok : $ng ?></li>
+						</ul>
+					</div>
+				</div>
+			</div><!-- /redis -->
+		</div><!-- /env test -->
+	</div><!-- /.container -->
+	<!-- JavaScript -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	</body>
 </html>
