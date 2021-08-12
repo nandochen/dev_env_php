@@ -6,11 +6,13 @@ services:
     container_name: mysql
     volumes:
       - ./Data_MySQL:/var/lib/mysql
+    env_file:
+      - ./php.env
     environment:
-      - "MYSQL_DATABASE=sample"
-      - "MYSQL_USER=test"
-      - "MYSQL_PASSWORD=1234"
-      - "MYSQL_ROOT_PASSWORD=1234"
+      - MYSQL_DATABASE="${db_servername}"
+      - MYSQL_USER="${db_username}"
+      - MYSQL_PASSWORD="${db_password}"
+      - MYSQL_ROOT_PASSWORD="${db_password}"
     command:
       - "--character-set-server=utf8"
     ports:
@@ -41,6 +43,8 @@ services:
       - redis
     volumes:
       - ./APP:/code 
+    env_file:
+      - ./php.env
     networks:
       - sample
   nginx:
